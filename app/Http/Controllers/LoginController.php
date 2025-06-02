@@ -34,7 +34,7 @@ class LoginController
             'horaacceso' => now()->format('H:i:s'),
         ]);
 
-        return redirect()->intended('/home');
+        return redirect()->intended('/dashboard');
     }
 
     public function destroy(Request $request)

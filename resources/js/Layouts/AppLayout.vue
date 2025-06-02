@@ -49,7 +49,7 @@ const logout = () => {
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
+                                    Mi Cuenta
                                 </NavLink>
                             </div>
                         </div>
@@ -135,12 +135,16 @@ const logout = () => {
                                     <template #content>
                                         <!-- Account Management -->
                                         <div class="block px-4 py-2 text-xs text-gray-400">
-                                            Manage Account
+                                            Mi Cuenta
                                         </div>
 
-                                        <DropdownLink :href="route('profile.show')">
-                                            Profile
+                                        <DropdownLink :href="route('libroalta')">
+                                            Alta de Libro
                                         </DropdownLink>
+
+                                        <!-- <DropdownLink :href="route('profile.show')">
+                                            Profile
+                                        </DropdownLink> -->
 
                                         <DropdownLink v-if="$page.props.jetstream.hasApiFeatures" :href="route('api-tokens.index')">
                                             API Tokens
@@ -151,7 +155,7 @@ const logout = () => {
                                         <!-- Authentication -->
                                         <form @submit.prevent="logout">
                                             <DropdownLink as="button">
-                                                Log Out
+                                                Cerrar Sesión
                                             </DropdownLink>
                                         </form>
                                     </template>
@@ -192,7 +196,7 @@ const logout = () => {
                 <div :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}" class="sm:hidden">
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            Dashboard
+                            Mi Cuenta
                         </ResponsiveNavLink>
                     </div>
 
@@ -214,9 +218,12 @@ const logout = () => {
                         </div>
 
                         <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('profile.show')" :active="route().current('profile.show')">
-                                Profile
+                            <ResponsiveNavLink :href="route('libroalta')" :active="route().current('libroalta')">
+                                Alta de Libro
                             </ResponsiveNavLink>
+                            <!-- <ResponsiveNavLink :href="route('profile.show')" :active="route().current('profile.show')">
+                                Profile
+                            </ResponsiveNavLink> -->
 
                             <ResponsiveNavLink v-if="$page.props.jetstream.hasApiFeatures" :href="route('api-tokens.index')" :active="route().current('api-tokens.index')">
                                 API Tokens
@@ -225,7 +232,7 @@ const logout = () => {
                             <!-- Authentication -->
                             <form method="POST" @submit.prevent="logout">
                                 <ResponsiveNavLink as="button">
-                                    Log Out
+                                    Cerrar Sesión
                                 </ResponsiveNavLink>
                             </form>
 
