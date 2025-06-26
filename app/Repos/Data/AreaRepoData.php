@@ -9,6 +9,9 @@ class AreaRepoData
   public function get(array $filtros)
   {
     $query = DB::table('areas');
+    if (!empty($filtros['destacada']) && $filtros['destacada'] == 'si') {
+      $query->where('destacada', true);
+    }
     return $query->get()->toArray();
   }
 

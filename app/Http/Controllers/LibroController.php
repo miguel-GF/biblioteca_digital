@@ -40,15 +40,15 @@ class LibroController extends Controller
       Log::debug('entro');
       $areaRepoData = new AreaRepoData();
       $areaObj = $areaRepoData->getById($request->areaId);
-  
+
       $editorialRepoData = new EditorialRepoData();
       $editorialObj = $editorialRepoData->getById($request->editorialId);
-  
+
       $autorRepoData = new AutorRepoData();
       $autorObj = $autorRepoData->getById($request->autorId);
-  
+
       $areaCarpeta = strtoupper(preg_replace('/[^a-zA-Z0-9]+/', '_', trim($areaObj->area)));
-  
+
       // Almacenar el archivo
       // storage/app/public/areas
       $archivo = $request->file('archivoPDF');
@@ -58,7 +58,7 @@ class LibroController extends Controller
       $nombreTituloTratado = strtoupper(preg_replace('/[^a-zA-Z0-9]+/', '_', trim($request->titulo)));
       $archivoNombre = $nombreTituloTratado . "." . $extension;
       $rutaArchivo = $archivo->storeAs($areaCarpeta, $archivoNombre, 'public');
-  
+
       // Crear el libro
       Libro::create([
         'cod_barras' => $request->codigoBarras,
@@ -88,7 +88,7 @@ class LibroController extends Controller
       DB::rollBack();
       Log::error('Ocurrió un erro al agregar libro');
       Log::error($th->getMessage());
-       // Redirecciona de nuevo con mensaje de error
+      // Redirecciona de nuevo con mensaje de error
       // return redirect()
       //     ->back()
       //     ->with('error', 'Ocurrió un error al guardar el libro. Por favor intenta más tarde.');
@@ -101,5 +101,28 @@ class LibroController extends Controller
       //   'areas' => [],
       // ]);
     }
+  }
+
+  public function listarLibrosPorCategoria(Request $request)
+  {
+    $query = $request->input('busqueda');
+
+    $libros = Libro::where('titulo', 'like', "%{$query}%")
+        ->orWhere('autor', 'like', "%{$query}%")
+        ->orWhere('editorial', 'like', "%{$query}%")
+        ->get();
+
+    $agrupados = $libros->groupBy('area')->map(function ($libros, $area) {
+        return [
+            'area' => $area,
+            'libros' => $libros->values(),
+        ];
+    })->values();
+
+
+    return Inertia::render('LibrosPorCategoria', [
+      'query' => $query,
+      'agrupados' => $agrupados
+    ]);
   }
 }

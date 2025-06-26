@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             // $table->timestamps();
             $table->text('area');
+            $table->boolean('destacada')->default(false);
         });
     }
 

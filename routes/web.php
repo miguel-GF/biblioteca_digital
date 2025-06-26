@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/home', [HomeController::class, 'index']);
+Route::get('/libros', [LibroController::class, 'listarLibrosPorCategoria']);
 
 // Route::get('/home', function () {
 //     return Inertia::render('Welcome', [
