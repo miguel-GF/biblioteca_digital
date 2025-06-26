@@ -138,7 +138,7 @@ const logout = () => {
                                             Mi Cuenta
                                         </div>
 
-                                        <DropdownLink :href="route('libroalta')">
+                                        <DropdownLink :href="route('libro.alta')">
                                             Alta de Libro
                                         </DropdownLink>
 
@@ -218,7 +218,7 @@ const logout = () => {
                         </div>
 
                         <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('libroalta')" :active="route().current('libroalta')">
+                            <ResponsiveNavLink :href="route('libro.alta')" :active="route().current('libro.alta')">
                                 Alta de Libro
                             </ResponsiveNavLink>
                             <!-- <ResponsiveNavLink :href="route('profile.show')" :active="route().current('profile.show')">

@@ -11,4 +11,10 @@ class EditorialRepoData
     $query = DB::table('editoriales');
     return $query->get()->toArray();
   }
+
+  public function getById($editorialId)
+  {
+    $query = DB::table('editoriales')->where('id', $editorialId);
+    return $query->get()->first();
+  }
 }

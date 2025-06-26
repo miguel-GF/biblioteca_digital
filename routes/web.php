@@ -30,5 +30,6 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
-    Route::get('/dashboard/libro/alta', [LibroController::class, 'getDatosLibroAlta'])->name('libroalta');
+    Route::get('/dashboard/libro/alta', [LibroController::class, 'getDatosLibroAlta'])->name('libro.alta');
+    Route::post('/dashboard/libro/guardar', [LibroController::class, 'guardar'])->name('libro.guardar');
 });

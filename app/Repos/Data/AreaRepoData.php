@@ -11,4 +11,10 @@ class AreaRepoData
     $query = DB::table('areas');
     return $query->get()->toArray();
   }
+
+  public function getById($areaId)
+  {
+    $query = DB::table('areas')->where('id', $areaId);
+    return $query->get()->first();
+  }
 }

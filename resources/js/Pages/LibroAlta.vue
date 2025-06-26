@@ -1,6 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { router, usePage } from '@inertiajs/vue3';
 
 // Campos
 const titulo = ref('')
@@ -10,9 +11,31 @@ const descripcion = ref('')
 const autorId = ref('')
 const editorialId = ref('')
 const areaId = ref('')
+const archivoPDF = ref(null)
 
 // Flag para activar validaciones
 const wasSubmitted = ref(false)
+
+// Mensajes flash
+const page = usePage()
+const errorMessage = ref('')
+const successMessage = ref('')
+
+// Leer desde `page.props.flash`
+watch(
+  () => page.props.flash,
+  (flash) => {
+    if (flash?.error) {
+      errorMessage.value = flash.error
+      setTimeout(() => (errorMessage.value = ''), 3500)
+    }
+    if (flash?.success) {
+      successMessage.value = flash.success
+      setTimeout(() => (successMessage.value = ''), 3500)
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 const props = defineProps({
   autores: Array,
@@ -42,12 +65,26 @@ const errors = computed(() => {
 
 const hasErrors = computed(() => Object.keys(errors.value).length > 0)
 
+function handleFile(event) {
+  archivoPDF.value = event.target.files[0]
+}
+
 function guardarLibro() {
   wasSubmitted.value = true
 
   if (hasErrors.value) {
-    console.warn('Corrige los errores antes de enviar.')
+    alert('Hay campos obligatorios que faltan por llenar');
     return
+  }
+
+  if (!archivoPDF.value || archivoPDF.value == null) {
+    alert('Debes subir el libro en PDF.');
+    return;
+  }
+
+  if (archivoPDF.value.type !== 'application/pdf') {
+    alert('Debe estar en formato PDF el libro.');
+    return;
   }
 
   // Aquí harías Inertia.post() o llamada a la API
@@ -58,7 +95,36 @@ function guardarLibro() {
     descripcion: descripcion.value,
     autorId: autorId.value,
     editorialId: editorialId.value,
-    areaId: areaId.value
+    areaId: areaId.value,
+    archivoPDF: archivoPDF.value,
+  })
+
+  const formData = new FormData()
+  formData.append('titulo', titulo.value)
+  formData.append('codigoBarras', codigoBarras.value)
+  formData.append('anio', anio.value)
+  formData.append('descripcion', descripcion.value)
+  formData.append('autorId', autorId.value)
+  formData.append('editorialId', editorialId.value)
+  formData.append('areaId', areaId.value)
+  formData.append('archivoPDF', archivoPDF.value)
+
+  router.post(route('libro.guardar'), formData, {
+    onSuccess: () => {
+      // limpiar el formulario o redirigir si quieres
+      titulo.value = ''
+      codigoBarras.value = ''
+      anio.value = ''
+      descripcion.value = ''
+      autorId.value = ''
+      editorialId.value = ''
+      areaId.value = ''
+      archivoPDF.value = null
+      wasSubmitted.value = false
+    },
+    onError: (err) => {
+      alert(JSON.stringify(err))
+    }
   })
 }
 </script>
@@ -71,11 +137,19 @@ function guardarLibro() {
 
     <div class="py-12">
       <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white p-6 shadow rounded-xl space-y-6">
+        <!-- Mensaje de éxito -->
+        <p v-if="successMessage" class="text-green-600 bg-green-100 border border-green-400 p-2 rounded mb-4">
+          {{ successMessage }}
+        </p>
 
+        <!-- Mensaje de error -->
+        <p v-if="errorMessage" class="text-red-600 bg-red-100 border border-red-400 p-2 rounded mb-4">
+          {{ errorMessage }}
+        </p>
+        <div class="bg-white p-6 shadow rounded-xl space-y-6">
           <!-- Título -->
           <div>
-            <label class="block text-sm font-medium text-gray-700">Título</label>
+            <label class="block text-sm font-medium text-gray-700">Título *</label>
             <input v-model="titulo" type="text" maxlength="50"
               class="mt-1 block w-full border rounded-md shadow-sm"
               :class="{ 'border-red-500': wasSubmitted && errors.titulo }" />
@@ -84,7 +158,7 @@ function guardarLibro() {
 
           <!-- Código de barras -->
           <div>
-            <label class="block text-sm font-medium text-gray-700">Código de Barras</label>
+            <label class="block text-sm font-medium text-gray-700">Código de Barras *</label>
             <input v-model="codigoBarras" type="text" maxlength="15"
               class="mt-1 block w-full border rounded-md shadow-sm"
               :class="{ 'border-red-500': wasSubmitted && errors.codigoBarras }" />
@@ -93,7 +167,7 @@ function guardarLibro() {
 
           <!-- Año -->
           <div>
-            <label class="block text-sm font-medium text-gray-700">Año</label>
+            <label class="block text-sm font-medium text-gray-700">Año *</label>
             <input v-model="anio" type="text" maxlength="4"
               class="mt-1 block w-full border rounded-md shadow-sm"
               :class="{ 'border-red-500': wasSubmitted && errors.anio }" />
@@ -110,7 +184,7 @@ function guardarLibro() {
           <!-- Selects -->
           <!-- AUTORES -->
           <div>
-            <label class="block text-sm font-medium text-gray-700">Autor</label>
+            <label class="block text-sm font-medium text-gray-700">Autor *</label>
             <select v-model="autorId"
               class="mt-1 block w-full border rounded-md shadow-sm"
               :class="{ 'border-red-500': wasSubmitted && errors.autorId }">
@@ -122,7 +196,7 @@ function guardarLibro() {
 
           <!-- EDITORIALES -->
           <div>
-            <label class="block text-sm font-medium text-gray-700">Editorial</label>
+            <label class="block text-sm font-medium text-gray-700">Editorial *</label>
             <select v-model="editorialId"
               class="mt-1 block w-full border rounded-md shadow-sm"
               :class="{ 'border-red-500': wasSubmitted && errors.editorialId }">
@@ -134,7 +208,7 @@ function guardarLibro() {
 
           <!-- AREAS -->
           <div>
-            <label class="block text-sm font-medium text-gray-700">Área</label>
+            <label class="block text-sm font-medium text-gray-700">Área *</label>
             <select v-model="areaId"
               class="mt-1 block w-full border rounded-md shadow-sm"
               :class="{ 'border-red-500': wasSubmitted && errors.areaId }">
@@ -142,6 +216,12 @@ function guardarLibro() {
               <option v-for="area in areas" :key="area.id" :value="area.id">{{ area.area }}</option>
             </select>
             <p v-if="wasSubmitted && errors.areaId" class="text-sm text-red-600 mt-1">{{ errors.areaId }}</p>
+          </div>
+
+          <!-- ARCHIVO PDF -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Archivo PDF *</label>
+            <input type="file" @change="handleFile" accept=".pdf" class="w-full" />
           </div>
 
           <!-- Botón -->
