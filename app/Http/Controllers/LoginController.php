@@ -17,8 +17,8 @@ class LoginController
 
         $usuario = Usuario::where('correo', $request->correo)
           ->where('password', $request->password)
-          ->where('status', 'Activo')
-          ->where('tipo', 'Sistema')
+          ->where('status', 'ACTIVO')
+          ->where('tipo', 'ADMINISTRADOR')
           ->first();
 
         if (!$usuario) {
