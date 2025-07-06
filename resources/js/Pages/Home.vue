@@ -6,7 +6,7 @@
         <h1 class="text-2xl font-bold">Biblioteca Digital</h1>
         <nav class="space-x-4">
           <a href="/home" class="hover:underline">Inicio</a>
-          <a href="#" class="hover:underline">Áreas</a>
+          <a href="/libros" class="hover:underline">Libros</a>
           <a href="/login" class="hover:underline">Mi cuenta</a>
         </nav>
       </div>
@@ -23,7 +23,7 @@
           v-model="busqueda"
           @keyup.enter="buscar"
           type="text"
-          placeholder="Buscar libros..."
+          placeholder="Buscar por Título / Autor / Editorial"
           class="w-full md:w-2/3 px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent"
         />
       </div>
@@ -37,7 +37,8 @@
           <div
             v-for="area in areas"
             :key="area.id"
-            class="bg-gray-100 p-4 rounded-lg shadow hover:shadow-md text-center"
+            class="bg-gray-100 p-4 rounded-lg shadow hover:shadow-md text-center cursor-pointer"
+            @click="buscar(area.id)"
           >
             {{ area.area || '--' }}
           </div>
@@ -61,9 +62,10 @@ defineProps({
 });
 const busqueda = ref('')
 
-function buscar() {
-  if (busqueda.value.trim()) {
-    router.get('/libros', { busqueda: busqueda.value })
-  }
+function buscar(areaId = '') {
+  router.get('/libros', {
+    busqueda: busqueda.value ? busqueda.value.trim() : '',
+    areaId,
+  })
 }
 </script>

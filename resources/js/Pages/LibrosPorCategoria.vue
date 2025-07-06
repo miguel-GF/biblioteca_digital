@@ -6,7 +6,7 @@
         <h1 class="text-2xl font-bold">Biblioteca Digital</h1>
         <nav class="space-x-4">
           <a href="/home" class="hover:underline">Inicio</a>
-          <a href="#" class="hover:underline">Áreas</a>
+          <a href="/libros" class="hover:underline">Libros</a>
           <a href="/login" class="hover:underline">Mi cuenta</a>
         </nav>
       </div>
@@ -14,12 +14,32 @@
 
     <!-- BÚSQUEDA -->
     <section class="bg-white py-6 px-4 shadow">
-      <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-4">
-        <h3 class="text-2xl font-semibold text-gray-800 flex-shrink-0">Resultados para: {{ query || '--' }}</h3>
-        <input v-model="busqueda" @keyup.enter="buscar" type="text" placeholder="Buscar libros..."
-          class="flex-grow px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary" />
-        <button @click="buscar"
-          class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark shadow">Buscar</button>
+      <div class="max-w-6xl mx-auto flex flex-col gap-4 md:flex-row md:items-center">
+
+        <!-- Título -->
+        <h3 class="text-2xl font-semibold text-gray-800 md:w-auto">Búsqueda</h3>
+
+        <!-- Input de texto (ocupa más espacio) -->
+        <input v-model="busqueda" @keyup.enter="buscar" type="text" placeholder="Buscar por Título / Autor / Editorial"
+          class="flex-1 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+
+        <!-- Select de área -->
+        <select v-model="areaBusquedaId" class="md:w-60 px-4 py-2 border rounded-md shadow-sm">
+          <option value="">Todas las áreas</option>
+          <option v-for="area in areas" :key="area.id" :value="area.id">
+            {{ area.area }}
+          </option>
+        </select>
+
+        <!-- Botón Buscar -->
+        <button @click="buscar" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark shadow">
+          Buscar
+        </button>
+
+        <!-- Botón Limpiar -->
+        <button @click="limpiar" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 shadow">
+          Limpiar
+        </button>
       </div>
     </section>
 
@@ -29,10 +49,10 @@
         <h3 class="text-2xl font-semibold text-neutral mb-6 border-b pb-2">{{ area.area || '--' }}</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           <div v-for="libro in area.libros" :key="libro.id"
-            class="bg-white border rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col items-center cursor-pointer">
-             <!-- Vista previa del PDF -->
-              {{ `/storage/${libro.archivo_ruta}` }}
-            <PdfPreview :src="`/storage/${libro.archivo_ruta}`" />
+            class="bg-white border rounded-xl ellipsis shadow hover:shadow-lg transition p-4 flex flex-col items-center cursor-pointer">
+            <!-- Vista previa del PDF -->
+            {{ `${libro.titulo}` }}
+            <PdfPreview :src="libro.archivo_url" />
             <h4 class="text-center font-medium text-gray-800 text-lg">{{ libro.titulo || '--' }}</h4>
           </div>
         </div>
@@ -51,58 +71,45 @@ import { ref, onMounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import PdfPreview from '@/Components/PdfPreview.vue'
 
-const { agrupados, query } = defineProps({
+const { agrupados, query, areas, areaId } = defineProps({
   agrupados: Array,
-  query: String
+  query: String,
+  areas: Array,
+  areaId: String,
 })
 
 const busqueda = ref('')
-const previewMap = ref({})
+const areaBusquedaId = ref('')
 
 function buscar() {
-  if (busqueda.value.trim()) {
-    router.get('/libros', { busqueda: busqueda.value })
-  }
+  router.get('/libros', {
+    busqueda: busqueda.value ? busqueda.value.trim() : '',
+    areaId: areaBusquedaId.value ?? '',
+  })
 }
 
 onMounted(() => {
-  agrupados.forEach(area => {
-    area.libros.forEach(libro => {
-      const url = `/storage/${libro.archivo_ruta}` // asegúrate de que sea accesible
-      renderPreview(url).then(dataUrl => {
-        previewMap.value[libro.id] = dataUrl
-      })
-    })
-  })
+  areaBusquedaId.value = areaId ?? '';
+  busqueda.value = query ?? '';
 })
 
-async function renderPreview(pdfUrl) {
-  try {
-    const pdf = await pdfjsLib.getDocument(pdfUrl).promise
-    const page = await pdf.getPage(1)
-    const viewport = page.getViewport({ scale: 1.5 })
-
-    const canvas = document.createElement('canvas')
-    const context = canvas.getContext('2d')
-    canvas.height = viewport.height
-    canvas.width = viewport.width
-
-    await page.render({ canvasContext: context, viewport }).promise
-    return canvas.toDataURL()
-  } catch (e) {
-    console.error('Error cargando preview:', e)
-    return null
-  }
+function limpiar() {
+  busqueda.value = ''
+  areaBusquedaId.value = ''
+  buscar()
 }
+
 </script>
 
 <style scoped>
 .bg-primary {
   @apply bg-blue-600;
 }
+
 .bg-primary-dark {
   @apply bg-blue-800;
 }
+
 .text-neutral {
   @apply text-gray-800;
 }

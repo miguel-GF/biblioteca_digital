@@ -23,6 +23,8 @@ export default defineConfig({
     include: ['pdfjs-dist']
   },
   build: {
+    outDir: 'public/build',
+    manifest: true,
     rollupOptions: {
       output: {
         manualChunks: undefined,

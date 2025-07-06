@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
 
 class LibroController extends Controller
 {
@@ -106,23 +107,54 @@ class LibroController extends Controller
   public function listarLibrosPorCategoria(Request $request)
   {
     $query = $request->input('busqueda');
+    $areaId = $request->input('areaId');
 
-    $libros = Libro::where('titulo', 'like', "%{$query}%")
-        ->orWhere('autor', 'like', "%{$query}%")
-        ->orWhere('editorial', 'like', "%{$query}%")
-        ->get();
+    $libros = Libro::query();
 
-    $agrupados = $libros->groupBy('area')->map(function ($libros, $area) {
+    if (!empty($query)) {
+      $libros->where(function ($q) use ($query) {
+        $q->where('titulo', 'like', "%{$query}%")
+          ->orWhere('autor', 'like', "%{$query}%")
+          ->orWhere('editorial', 'like', "%{$query}%");
+      });
+    }
+
+    if (!empty($areaId)) {
+      $libros->where('area_id', $areaId);
+    }
+
+    $libros = $libros->get();
+
+    $agrupados = $libros->groupBy('area')->map(function ($librosPorArea, $area) {
+      // Mapea cada libro dentro de este grupo para añadir la URL completa
+      $librosConUrl = $librosPorArea->map(function ($libro) {
         return [
-            'area' => $area,
-            'libros' => $libros->values(),
+          'id' => $libro->id,
+          'titulo' => $libro->titulo,
+          'autor' => $libro->autor,
+          'editorial' => $libro->editorial,
+          'area' => $libro->area, // Asegúrate de incluir todas las propiedades que necesitas
+          // ¡Aquí es donde aplicamos Storage::url()!
+          'archivo_url' => Storage::url($libro->archivo_ruta),
+          // Si aún necesitas la ruta original por alguna razón, también la puedes pasar
+          'archivo_ruta' => $libro->archivo_ruta,
         ];
-    })->values();
+      })->values(); // Usa values() para resetear las claves del array
 
+      return [
+        'area' => $area,
+        'libros' => $librosConUrl, // Ahora 'libros' contiene los objetos con 'archivo_url'
+      ];
+    })->values(); // Usa values() aquí también para resetear las claves si no quieres las áreas como claves
+
+    $areaRepo = new AreaRepoData();
+    $areas = $areaRepo->get([]);
 
     return Inertia::render('LibrosPorCategoria', [
       'query' => $query,
-      'agrupados' => $agrupados
+      'areaId' => $areaId ?? null,
+      'agrupados' => $agrupados,
+      'areas' => $areas,
     ]);
   }
 }
