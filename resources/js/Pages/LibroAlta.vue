@@ -227,7 +227,7 @@ function guardarLibro() {
           <!-- Botón -->
           <div class="text-right">
             <button @click="guardarLibro"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              class="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-900"
             >
               Guardar Libro
             </button>

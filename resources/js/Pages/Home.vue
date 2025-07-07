@@ -1,16 +1,7 @@
 <template>
   <div class="min-h-screen flex flex-col">
     <!-- HEADER -->
-    <header class="bg-primary text-red shadow-md">
-      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 class="text-2xl font-bold">Biblioteca Digital</h1>
-        <nav class="space-x-4">
-          <a href="/home" class="hover:underline">Inicio</a>
-          <a href="/libros" class="hover:underline">Libros</a>
-          <a href="/login" class="hover:underline">Mi cuenta</a>
-        </nav>
-      </div>
-    </header>
+    <Header />
 
     <!-- HERO -->
     <section class="bg-secondary py-16 px-4 text-center">
@@ -56,6 +47,7 @@
 <script setup>
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import Header from '@/Components/Header.vue';
 
 defineProps({
   areas: Array

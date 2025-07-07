@@ -1,16 +1,7 @@
 <template>
   <div class="min-h-screen flex flex-col">
     <!-- HEADER -->
-    <header class="bg-primary text-white shadow-md">
-      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 class="text-2xl font-bold">Biblioteca Digital</h1>
-        <nav class="space-x-4">
-          <a href="/home" class="hover:underline">Inicio</a>
-          <a href="/libros" class="hover:underline">Libros</a>
-          <a href="/login" class="hover:underline">Mi cuenta</a>
-        </nav>
-      </div>
-    </header>
+    <Header />
 
     <!-- BÚSQUEDA -->
     <section class="bg-white py-6 px-4 shadow">
@@ -32,7 +23,7 @@
         </select>
 
         <!-- Botón Buscar -->
-        <button @click="buscar" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark shadow">
+        <button @click="buscar" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-900 shadow">
           Buscar
         </button>
 
@@ -46,14 +37,16 @@
     <!-- LIBROS AGRUPADOS POR ÁREA -->
     <section class="py-12 px-4">
       <div v-for="area in agrupados" :key="area.area" class="max-w-6xl mx-auto mb-12">
-        <h3 class="text-2xl font-semibold text-neutral mb-6 border-b pb-2">{{ area.area || '--' }}</h3>
+        <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">{{ area.area || '--' }}</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           <div v-for="libro in area.libros" :key="libro.id"
-            class="bg-white border rounded-xl ellipsis shadow hover:shadow-lg transition p-4 flex flex-col items-center cursor-pointer">
+            class="bg-white border rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col cursor-pointer">
             <!-- Vista previa del PDF -->
-            {{ `${libro.titulo}` }}
+            <div class="text-left truncate">{{ `${libro.titulo || '--'}` }}</div>
+            <div class="text-left truncate text-gray-500 text-md">{{ `${libro.autor || '--'}` }}</div>
+            <div class="text-left text-gray-500 text-md">{{ `${libro.anio || '--'}` }}</div>
             <PdfPreview :src="libro.archivo_url" />
-            <h4 class="text-center font-medium text-gray-800 text-lg">{{ libro.titulo || '--' }}</h4>
+            <h4 class="text-left font-medium text-gray-800 text-lg">{{ libro.descripcion || 'Sin descripción' }}</h4>
           </div>
         </div>
       </div>
@@ -70,6 +63,7 @@
 import { ref, onMounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import PdfPreview from '@/Components/PdfPreview.vue'
+import Header from '@/Components/Header.vue';
 
 const { agrupados, query, areas, areaId } = defineProps({
   agrupados: Array,
@@ -100,17 +94,3 @@ function limpiar() {
 }
 
 </script>
-
-<style scoped>
-.bg-primary {
-  @apply bg-blue-600;
-}
-
-.bg-primary-dark {
-  @apply bg-blue-800;
-}
-
-.text-neutral {
-  @apply text-gray-800;
-}
-</style>
