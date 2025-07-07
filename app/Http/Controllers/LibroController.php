@@ -133,6 +133,8 @@ class LibroController extends Controller
           'titulo' => $libro->titulo,
           'autor' => $libro->autor,
           'editorial' => $libro->editorial,
+          'anio' => $libro->anio,
+          'descripcion' => $libro->descripcion,
           'area' => $libro->area, // Asegúrate de incluir todas las propiedades que necesitas
           // ¡Aquí es donde aplicamos Storage::url()!
           'archivo_url' => Storage::url($libro->archivo_ruta),
