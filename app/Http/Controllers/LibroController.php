@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LibroGuardarRequest;
 use App\Models\Libro;
+use App\Repos\Data\AlumnoRepoData;
 use App\Repos\Data\AreaRepoData;
 use App\Repos\Data\AutorRepoData;
 use App\Repos\Data\EditorialRepoData;
@@ -158,5 +159,31 @@ class LibroController extends Controller
       'agrupados' => $agrupados,
       'areas' => $areas,
     ]);
+  }
+
+  public function descargar(Request $request, $id)
+  {
+    $matricula = $request->query('matricula');
+
+    if (!$matricula) {
+      abort(400, 'Matrícula requerida');
+    }
+
+    $alRepo = new AlumnoRepoData();
+    $alumnoEncontrado = $alRepo->buscarPorMatricula($matricula);
+    if (empty($alumnoEncontrado) || $alumnoEncontrado === null) {
+      abort(400, 'Alumno no encontrado, no puede descargar el libro.');
+    }
+
+    $libro = Libro::findOrFail($id);
+
+    // Asegúrate de que la ruta esté protegida y sea válida
+    $ruta = storage_path("app/public/{$libro->archivo_ruta}");
+
+    if (!file_exists($ruta)) {
+      abort(404, 'Archivo no encontrado');
+    }
+
+    return response()->download($ruta, "{$libro->titulo}.pdf");
   }
 }

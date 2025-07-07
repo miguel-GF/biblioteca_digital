@@ -11,6 +11,7 @@ use Inertia\Inertia;
 
 Route::get('/home', [HomeController::class, 'index']);
 Route::get('/libros', [LibroController::class, 'listarLibrosPorCategoria']);
+Route::get('/descargar-libro/{id}', [LibroController::class, 'descargar']);
 
 // Route::get('/home', function () {
 //     return Inertia::render('Welcome', [
