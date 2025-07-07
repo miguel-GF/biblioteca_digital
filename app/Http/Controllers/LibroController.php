@@ -141,6 +141,7 @@ class LibroController extends Controller
           'archivo_url' => Storage::url($libro->archivo_ruta),
           // Si aún necesitas la ruta original por alguna razón, también la puedes pasar
           'archivo_ruta' => $libro->archivo_ruta,
+          'archivo_nombre' => $libro->archivo_nombre,
         ];
       })->values(); // Usa values() para resetear las claves del array
 
@@ -161,20 +162,30 @@ class LibroController extends Controller
     ]);
   }
 
-  public function descargar(Request $request, $id)
-  {
+  public function validarMatricula(Request $request)
+{
     $matricula = $request->query('matricula');
 
     if (!$matricula) {
-      abort(400, 'Matrícula requerida');
+        return response()->json(['message' => 'Matrícula requerida'], 400);
     }
 
     $alRepo = new AlumnoRepoData();
-    $alumnoEncontrado = $alRepo->buscarPorMatricula($matricula);
-    if (empty($alumnoEncontrado) || $alumnoEncontrado === null) {
-      abort(400, 'Alumno no encontrado, no puede descargar el libro.');
+    $alumno = $alRepo->buscarPorMatricula($matricula);
+
+    if (empty($alumno)) {
+        return response()->json(['message' => 'Alumno no encontrado'], 400);
     }
 
+    return response()->json([
+        'message' => 'Matrícula válida',
+        'id' => $alumno->idalumnos,
+        'existe' => true
+    ]);
+}
+
+  public function descargar(Request $request, $id)
+  {
     $libro = Libro::findOrFail($id);
 
     // Asegúrate de que la ruta esté protegida y sea válida
@@ -184,6 +195,6 @@ class LibroController extends Controller
       abort(404, 'Archivo no encontrado');
     }
 
-    return response()->download($ruta, "{$libro->titulo}.pdf");
+    return response()->download($ruta, $libro->archivo_nombre);
   }
 }

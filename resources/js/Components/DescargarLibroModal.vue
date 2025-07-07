@@ -19,13 +19,45 @@ import axios from 'axios'
 
 const visible = ref(false)
 const matricula = ref('')
+const tituloSeleccionado = ref('')
 const error = ref('')
 let libroId = null
 
-function abrir(id) {
+function abrir(id, titulo) {
   libroId = id
-  matricula.value = ''
   error.value = ''
+
+  // ✅ Verificamos si ya hay cookie
+  const cookie = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('libro_sesion='));
+
+  if (cookie) {
+    // 👇 Si existe, descargamos directo
+    const parsed = JSON.parse(decodeURIComponent(cookie.split('=')[1]));
+
+    axios.get(`/descargar-libro/${id}`, {
+      params: { matricula: parsed.matricula },
+      responseType: 'blob',
+    }).then(response => {
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `${titulo}`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }).catch(err => {
+      error.value = 'Error al descargar con sesión activa. Intenta de nuevo.'
+      visible.value = true
+    })
+
+    return
+  }
+
+    // Si no hay cookie → mostrar modal
+  tituloSeleccionado.value = titulo
+  matricula.value = ''
   visible.value = true
 }
 
@@ -35,34 +67,49 @@ function cerrar() {
 
 async function aceptar() {
   error.value = ''
-  if (!matricula.value) {
+  const mat = String(matricula.value).trim()
+
+  if (!mat) {
     error.value = 'Por favor ingresa la matrícula.'
     return
   }
 
   try {
-    const response = await axios.get(`/descargar-libro/${libroId}`, {
-      params: { matricula: matricula.value },
-      responseType: 'blob', // 👈 Para manejar archivos
+    // Paso 1: validar matrícula
+    const { data } = await axios.get('/validar-matricula', {
+      params: { matricula: mat }
     })
 
-    // Crear URL y descargar archivo
-    const url = window.URL.createObjectURL(new Blob([response.data]))
+    if (!data.existe) {
+      error.value = 'Matrícula no existe.'
+      return
+    }
+
+    // Paso 2: guardar cookie por 30 min
+    document.cookie = `libro_sesion=${encodeURIComponent(JSON.stringify({
+      id: data.id,
+      matricula: mat
+    }))}; path=/; max-age=1800`
+
+    // Paso 3: descargar
+    const file = await axios.get(`/descargar-libro/${libroId}`, {
+      responseType: 'blob'
+    })
+
+    const url = window.URL.createObjectURL(new Blob([file.data]))
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute('download', `libro-${libroId}.pdf`)
+    link.setAttribute('download', `${tituloSeleccionado.value}`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
 
     cerrar()
   } catch (err) {
-    if (err.response && err.response.status === 400) {
-      error.value = err.response.data.message || 'Matrícula inválida.'
-    } else if (err.response && err.response.status === 404) {
-      error.value = 'El archivo no fue encontrado.'
+    if (err.response?.data?.message) {
+      error.value = err.response.data.message
     } else {
-      error.value = 'Ocurrió un error inesperado.'
+      error.value = 'Error inesperado al validar matrícula o descargar archivo.'
     }
   }
 }

@@ -39,7 +39,7 @@
       <div v-for="area in agrupados" :key="area.area" class="max-w-6xl mx-auto mb-12">
         <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">{{ area.area || '--' }}</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          <div @click="solicitarLibro(libro.id)" v-for="libro in area.libros" :key="libro.id"
+          <div @click="solicitarLibro(libro.id, libro.archivo_nombre)" v-for="libro in area.libros" :key="libro.id"
             class="bg-white border rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col cursor-pointer">
             <!-- Vista previa del PDF -->
             <div class="text-left truncate">{{ `${libro.titulo || '--'}` }}</div>
@@ -69,8 +69,8 @@ import Header from '@/Components/Header.vue';
 import DescargarLibroModal from '@/Components/DescargarLibroModal.vue';
 
 const modalRef = ref(null)
-function solicitarLibro(libroId) {
-  modalRef.value.abrir(libroId)
+function solicitarLibro(libroId, libroArchivoNombre) {
+  modalRef.value.abrir(libroId, libroArchivoNombre)
 }
 
 const { agrupados, query, areas, areaId } = defineProps({
