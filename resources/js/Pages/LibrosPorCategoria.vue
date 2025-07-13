@@ -37,7 +37,18 @@
     <!-- LIBROS AGRUPADOS POR ÁREA -->
     <div class="bg-fixed bg-cover bg-center" style="background-image: url('/images/bgbiblioteca.jpg');">
       <section class="py-12 px-4">
-        <div v-for="area in agrupados" :key="area.area" class="max-w-6xl mx-auto mb-12">
+        <section v-if="agrupados.length === 0" class="py-20 bg-white/70 text-center">
+          <div class="max-w-xl mx-auto px-4">
+            <img
+              src="/images/emptybookshelf.png"
+              alt="Sin libros"
+              class="mx-auto w-40 h-40 object-contain mb-6 opacity-80"
+            />
+            <h2 class="text-2xl font-semibold text-gray-800 mb-2">No hay libros disponibles</h2>
+            <p class="text-gray-600">Intenta ajustar tu búsqueda o filtrar por otra área.</p>
+          </div>
+        </section>
+        <div v-else v-for="area in agrupados" :key="area.area" class="max-w-6xl mx-auto mb-12">
           <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">{{ area.area || '--' }}</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             <div @click="solicitarLibro(libro.id, libro.archivo_nombre)" v-for="libro in area.libros" :key="libro.id"
