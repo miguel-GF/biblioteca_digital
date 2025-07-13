@@ -35,29 +35,29 @@
     </section>
 
     <!-- LIBROS AGRUPADOS POR ÁREA -->
-    <section class="py-12 px-4">
-      <div v-for="area in agrupados" :key="area.area" class="max-w-6xl mx-auto mb-12">
-        <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">{{ area.area || '--' }}</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          <div @click="solicitarLibro(libro.id, libro.archivo_nombre)" v-for="libro in area.libros" :key="libro.id"
-            class="bg-white border rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col cursor-pointer">
-            <!-- Vista previa del PDF -->
-            <div class="text-left truncate">{{ `${libro.titulo || '--'}` }}</div>
-            <div class="text-left truncate text-gray-500 text-md">{{ `${libro.autor || '--'}` }}</div>
-            <div class="text-left text-gray-500 text-md">{{ `${libro.anio || '--'}` }}</div>
-            <PdfPreview :src="libro.archivo_url" />
-            <h4 class="text-left font-medium text-gray-800 text-lg">{{ libro.descripcion || 'Sin descripción' }}</h4>
+    <div class="bg-fixed bg-cover bg-center" style="background-image: url('/images/bgbiblioteca.jpg');">
+      <section class="py-12 px-4">
+        <div v-for="area in agrupados" :key="area.area" class="max-w-6xl mx-auto mb-12">
+          <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">{{ area.area || '--' }}</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div @click="solicitarLibro(libro.id, libro.archivo_nombre)" v-for="libro in area.libros" :key="libro.id"
+              class="bg-white border rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col cursor-pointer">
+              <!-- Vista previa del PDF -->
+              <div class="text-left truncate">{{ `${libro.titulo || '--'}` }}</div>
+              <div class="text-left truncate text-gray-500 text-md">{{ `${libro.autor || '--'}` }}</div>
+              <div class="text-left text-gray-500 text-md">{{ `${libro.anio || '--'}` }}</div>
+              <PdfPreview :src="libro.archivo_url" />
+              <h4 class="text-left font-medium text-gray-800 text-lg">{{ libro.descripcion || 'Sin descripción' }}</h4>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
     <DescargarLibroModal ref="modalRef" />
 
     <!-- FOOTER -->
-    <footer class="mt-auto bg-neutral text-white py-6 text-center">
-      <p>© 2025 Biblioteca Digital - Todos los derechos reservados</p>
-    </footer>
+    <Footer />
   </div>
 </template>
 
@@ -66,6 +66,7 @@ import { ref, onMounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import PdfPreview from '@/Components/PdfPreview.vue'
 import Header from '@/Components/Header.vue';
+import Footer from '@/Components/Footer.vue';
 import DescargarLibroModal from '@/Components/DescargarLibroModal.vue';
 
 const modalRef = ref(null)
