@@ -10,13 +10,9 @@
         <p class="text-lg text-gray-700 mb-6">
           Encuentra y consulta libros digitales desde cualquier lugar con tu matrícula escolar.
         </p>
-        <input
-          v-model="busqueda"
-          @keyup.enter="buscarPorInput()"
-          type="text"
+        <input v-model="busqueda" @keyup.enter="buscarPorInput()" type="text"
           placeholder="Buscar por Título / Autor / Editorial"
-          class="w-full md:w-2/3 px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent"
-        />
+          class="w-full md:w-2/3 px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent" />
       </div>
     </section>
 
@@ -25,13 +21,14 @@
       <div class="max-w-6xl mx-auto">
         <h3 class="text-2xl font-semibold mb-6 text-neutral">Áreas destacadas</h3>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div
-            v-for="area in areas"
-            :key="area.id"
-            class="bg-gray-100 p-4 rounded-lg shadow hover:shadow-md text-center cursor-pointer"
-            @click="buscarPorArea(area.id)"
-          >
-            {{ area.area || '--' }}
+          <div v-for="area in areas" :key="area.id" @click="buscarPorArea(area.id)"
+            class="rounded-xl overflow-hidden shadow hover:shadow-xl cursor-pointer transition duration-200 text-center p-4 flex flex-col items-center"
+            style="background-color: #F7F7F7;">
+            <img :src="obtenerNombreImagenArea(area.area)" alt="Imagen del área"
+              class="h-24 w-24 object-contain mb-4" />
+            <div class="text-lg font-semibold text-gray-800">
+              {{ area.area ? area.area.toUpperCase() : '--' }}
+            </div>
           </div>
         </div>
       </div>
@@ -48,6 +45,8 @@
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import Header from '@/Components/Header.vue';
+import { obtenerNombreImagenArea } from '/resources/js/areaImages.js'
+
 
 defineProps({
   areas: Array
