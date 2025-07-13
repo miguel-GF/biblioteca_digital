@@ -8,7 +8,7 @@
       <!-- HERO -->
       <section class="bg-secondary py-16 px-4 text-center">
         <div class="max-w-2xl mx-auto">
-          <h2 class="text-4xl font-bold mb-4 text-white text-neutral">Bienvenido a la Biblioteca Digital</h2>
+          <h2 class="text-4xl font-bold mb-4 text-white/90 text-neutral">Bienvenido a la Biblioteca Digital</h2>
           <p class="text-lg text-white mb-6">
             Encuentra y consulta libros digitales desde cualquier lugar con tu matrícula escolar.
           </p>
@@ -21,7 +21,7 @@
       <!-- AREAS -->
       <section class="py-12 px-4 bg-blue">
         <div class="max-w-6xl mx-auto">
-          <h3 class="text-2xl text-white font-semibold mb-6 text-neutral">Áreas destacadas</h3>
+          <h3 class="text-2xl text-white/90 font-semibold mb-6 text-neutral">Áreas destacadas</h3>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div v-for="area in areas" :key="area.id" @click="buscarPorArea(area.id)"
               class="rounded-xl overflow-hidden shadow hover:shadow-xl cursor-pointer transition duration-200 text-center p-4 flex flex-col items-center"
