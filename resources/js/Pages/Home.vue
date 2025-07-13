@@ -12,7 +12,7 @@
         </p>
         <input
           v-model="busqueda"
-          @keyup.enter="buscar"
+          @keyup.enter="buscarPorInput()"
           type="text"
           placeholder="Buscar por Título / Autor / Editorial"
           class="w-full md:w-2/3 px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent"
@@ -29,7 +29,7 @@
             v-for="area in areas"
             :key="area.id"
             class="bg-gray-100 p-4 rounded-lg shadow hover:shadow-md text-center cursor-pointer"
-            @click="buscar(area.id)"
+            @click="buscarPorArea(area.id)"
           >
             {{ area.area || '--' }}
           </div>
@@ -54,10 +54,17 @@ defineProps({
 });
 const busqueda = ref('')
 
-function buscar(areaId = '') {
+function buscarPorInput() {
   router.get('/libros', {
-    busqueda: busqueda.value ? busqueda.value.trim() : '',
-    areaId,
+    busqueda: busqueda.value.trim(),
+    areaId: '',
+  })
+}
+
+function buscarPorArea(areaId) {
+  router.get('/libros', {
+    busqueda: '',
+    areaId: areaId,
   })
 }
 </script>

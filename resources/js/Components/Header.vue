@@ -1,7 +1,9 @@
 <template>
   <header class="bg-primary text-white shadow-md">
     <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold">Biblioteca Digital</h1>
+      <h1 class="text-2xl font-bold">
+        <Link href="/home">Biblioteca Digital</Link>
+      </h1>
       <nav class="space-x-4">
         <Link href="/home" class="hover:underline" :class="{ 'font-bold underline': $page.url.startsWith('/home') }">
         Inicio</Link>

@@ -70,14 +70,27 @@ import DescargarLibroModal from '@/Components/DescargarLibroModal.vue';
 
 const modalRef = ref(null)
 function solicitarLibro(libroId, libroArchivoNombre) {
-  modalRef.value.abrir(libroId, libroArchivoNombre)
+  // modalRef.value.abrir(libroId, libroArchivoNombre)
+  modalRef.value.descargarLibro(libroId, libroArchivoNombre)
 }
 
 const { agrupados, query, areas, areaId } = defineProps({
-  agrupados: Array,
-  query: String,
-  areas: Array,
-  areaId: String,
+  agrupados: {
+    type: Array,
+    default: () => [],
+  },
+  query: {
+    type: String,
+    default: '',
+  },
+  areas: {
+    type: Array,
+    default: () => [],
+  },
+  areaId: {
+    type: [String, Number],
+    default: '',
+  },
 })
 
 const busqueda = ref('')
@@ -91,8 +104,8 @@ function buscar() {
 }
 
 onMounted(() => {
-  areaBusquedaId.value = areaId ?? '';
-  busqueda.value = query ?? '';
+  areaBusquedaId.value = areaId || '';
+  busqueda.value = query || '';
 })
 
 function limpiar() {

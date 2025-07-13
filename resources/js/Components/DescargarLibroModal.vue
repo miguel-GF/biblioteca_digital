@@ -114,6 +114,21 @@ async function aceptar() {
   }
 }
 
+// METODO GLOBAL QUE SE UTILZARA DESPUES
+async function descargarLibro(libroId, nombreArchivo) {
+  const file = await axios.get(`/descargar-libro/${libroId}`, {
+      responseType: 'blob'
+    })
+
+    const url = window.URL.createObjectURL(new Blob([file.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `${nombreArchivo}`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+}
+
 // Exponemos el método abrir al padre
-defineExpose({ abrir })
+defineExpose({ abrir, descargarLibro })
 </script>

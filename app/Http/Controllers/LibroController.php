@@ -138,7 +138,8 @@ class LibroController extends Controller
           'descripcion' => $libro->descripcion,
           'area' => $libro->area, // Asegúrate de incluir todas las propiedades que necesitas
           // ¡Aquí es donde aplicamos Storage::url()!
-          'archivo_url' => Storage::url($libro->archivo_ruta),
+          // 'archivo_url' => Storage::url($libro->archivo_ruta),
+          'archivo_url' => "/preview-libro/{$libro->archivo_ruta}",
           // Si aún necesitas la ruta original por alguna razón, también la puedes pasar
           'archivo_ruta' => $libro->archivo_ruta,
           'archivo_nombre' => $libro->archivo_nombre,
@@ -155,34 +156,34 @@ class LibroController extends Controller
     $areas = $areaRepo->get([]);
 
     return Inertia::render('LibrosPorCategoria', [
-      'query' => $query,
-      'areaId' => $areaId ?? null,
+      'query' => $query ?: '',
+      'areaId' => $areaId ?: '',
       'agrupados' => $agrupados,
       'areas' => $areas,
     ]);
   }
 
   public function validarMatricula(Request $request)
-{
+  {
     $matricula = $request->query('matricula');
 
     if (!$matricula) {
-        return response()->json(['message' => 'Matrícula requerida'], 400);
+      return response()->json(['message' => 'Matrícula requerida'], 400);
     }
 
     $alRepo = new AlumnoRepoData();
     $alumno = $alRepo->buscarPorMatricula($matricula);
 
     if (empty($alumno)) {
-        return response()->json(['message' => 'Alumno no encontrado'], 400);
+      return response()->json(['message' => 'Alumno no encontrado'], 400);
     }
 
     return response()->json([
-        'message' => 'Matrícula válida',
-        'id' => $alumno->idalumnos,
-        'existe' => true
+      'message' => 'Matrícula válida',
+      'id' => $alumno->idalumnos,
+      'existe' => true
     ]);
-}
+  }
 
   public function descargar(Request $request, $id)
   {
