@@ -12,6 +12,7 @@ const autorId = ref('')
 const editorialId = ref('')
 const areaId = ref('')
 const archivoPDF = ref(null)
+const inputFileRef = ref(null)
 
 // Flag para activar validaciones
 const wasSubmitted = ref(false)
@@ -121,6 +122,9 @@ function guardarLibro() {
       areaId.value = ''
       archivoPDF.value = null
       wasSubmitted.value = false
+      if (inputFileRef.value) {
+        inputFileRef.value.value = ''
+      }
     },
     onError: (err) => {
       alert(JSON.stringify(err))
@@ -221,7 +225,7 @@ function guardarLibro() {
           <!-- ARCHIVO PDF -->
           <div>
             <label class="block text-sm font-medium text-gray-700">Archivo PDF *</label>
-            <input type="file" @change="handleFile" accept=".pdf" class="w-full" />
+            <input ref="inputFileRef" type="file" @change="handleFile" accept=".pdf" class="w-full" />
           </div>
 
           <!-- Botón -->
