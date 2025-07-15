@@ -43,11 +43,17 @@ class LibroController extends Controller
       $areaRepoData = new AreaRepoData();
       $areaObj = $areaRepoData->getById($request->areaId);
 
-      $editorialRepoData = new EditorialRepoData();
-      $editorialObj = $editorialRepoData->getById($request->editorialId);
+      $editorialObj = null;
+      if ($request->editorialId != '') {
+        $editorialRepoData = new EditorialRepoData();
+        $editorialObj = $editorialRepoData->getById($request->editorialId);
+      }
 
-      $autorRepoData = new AutorRepoData();
-      $autorObj = $autorRepoData->getById($request->autorId);
+      $autorObj = null;
+      if ($request->autorId != '') {
+        $autorRepoData = new AutorRepoData();
+        $autorObj = $autorRepoData->getById($request->autorId);
+      }
 
       $areaCarpeta = strtoupper(preg_replace('/[^a-zA-Z0-9]+/', '_', trim($areaObj->area)));
 
@@ -63,19 +69,9 @@ class LibroController extends Controller
 
       // Crear el libro
       Libro::create([
-        'cod_barras' => $request->codigoBarras,
-        'autor_id' => $request->autorId,
-        'autor' => $autorObj->autor,
-        'editorial_id' => $request->editorialId,
-        'editorial' => $editorialObj->editorial,
+        'titulo' => $request->titulo,
         'area_id' => $request->areaId,
         'area' => $areaObj->area,
-        'clave' => null,
-        'isbn' => null,
-        'titulo' => $request->titulo,
-        'descripcion' => $request->descripcion ?? null,
-        'anio' => $request->anio,
-        'status' => $request->status ?? 'activo',
         'registro_autor_id' => auth()->id() ?? null,
         'archivo_ruta' => $rutaArchivo,
         'archivo_tamanio' => $archivo->getSize(),
@@ -83,6 +79,17 @@ class LibroController extends Controller
         'archivo_nombre_original' => $archivoNombreOriginal,
         'archivo_mime_type' => $archivo->getClientMimeType(),
         'registro_fecha' => now(), // Laravel lo almacena automáticamente
+        // OPCIONALES
+        'cod_barras' => !empty($request->codigoBarras) ? $request->codigoBarras : null,
+        'autor_id' => !empty($request->autorId) ? $request->autorId : null,
+        'autor' => !empty($autorObj->autor) ? $autorObj->autor : null,
+        'editorial_id' => !empty($request->editorialId) ? $request->editorialId : null,
+        'editorial' => !empty($editorialObj->editorial) ? $editorialObj->editorial : null,
+        'descripcion' => !empty($request->descripcion) ? $request->descripcion : null,
+        'anio' => !empty($request->anio) ? $request->anio : null,
+        'status' => $request->status ?? 'activo',
+        'clave' => null,
+        'isbn' => null,
       ]);
       DB::commit();
       return redirect()->route('libro.alta')->with('success', 'Libro guardado correctamente.');

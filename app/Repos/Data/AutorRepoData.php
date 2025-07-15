@@ -8,7 +8,7 @@ class AutorRepoData
 {
   public function get(array $filtros)
   {
-    $query = DB::table('autores');
+    $query = DB::table('autores')->orderBy('autor');
     return $query->get()->toArray();
   }
 

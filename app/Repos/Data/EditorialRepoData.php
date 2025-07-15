@@ -8,7 +8,7 @@ class EditorialRepoData
 {
   public function get(array $filtros)
   {
-    $query = DB::table('editoriales');
+    $query = DB::table('editoriales')->orderBy('editorial');
     return $query->get()->toArray();
   }
 

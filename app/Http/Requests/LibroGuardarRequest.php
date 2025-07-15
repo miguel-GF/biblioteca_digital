@@ -14,16 +14,16 @@ class LibroGuardarRequest extends FormRequest
   public function rules()
   {
     return [
-      'codigoBarras' => 'nullable|string|max:255',
-      'autorId' => 'required|exists:autores,id',
-      'editorialId' => 'required|exists:editoriales,id',
+      'titulo' => 'required|string|max:50',
       'areaId' => 'required|exists:areas,id',
+      'archivoPDF' => 'required|file|mimes:pdf|max:10240',
+      'codigoBarras' => 'nullable|string|max:255',
+      'autorId' => 'nullable|exists:autores,id',
+      'editorialId' => 'nullable|exists:editoriales,id',
       'clave' => 'nullable|string|max:255',
       // 'isbn' => 'nullable|string|max:255',
-      'titulo' => 'required|string|max:50',
-      'anio' => 'required|digits:4',
+      'anio' => 'nullable|digits:4',
       'status' => 'nullable|string',
-      'archivoPDF' => 'required|file|mimes:pdf|max:10240',
     ];
   }
 

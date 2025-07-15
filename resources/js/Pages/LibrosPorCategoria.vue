@@ -55,8 +55,8 @@
               class="bg-white border rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col cursor-pointer">
               <!-- Vista previa del PDF -->
               <div class="text-left truncate">{{ `${libro.titulo || '--'}` }}</div>
-              <div class="text-left truncate text-gray-500 text-md">{{ `${libro.autor || '--'}` }}</div>
-              <div class="text-left text-gray-500 text-md">{{ `${libro.anio || '--'}` }}</div>
+              <div class="text-left truncate text-gray-500 text-md">{{ `${libro.autor || 'Sin autor'}` }}</div>
+              <div class="text-left text-gray-500 text-md">{{ `${libro.anio || 'Sin año'}` }}</div>
               <PdfPreview :src="libro.archivo_url" />
               <h4 class="text-left font-medium text-gray-800 text-lg">{{ libro.descripcion || 'Sin descripción' }}</h4>
             </div>
