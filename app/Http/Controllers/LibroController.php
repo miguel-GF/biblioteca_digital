@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ValidadorException;
 use App\Http\Requests\LibroGuardarRequest;
+use App\Models\Area;
+use App\Models\Autor;
+use App\Models\Editorial;
 use App\Models\Libro;
 use App\Repos\Data\AlumnoRepoData;
 use App\Repos\Data\AreaRepoData;
 use App\Repos\Data\AutorRepoData;
 use App\Repos\Data\EditorialRepoData;
+use App\Utilerias;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Storage;
 
 class LibroController extends Controller
 {
@@ -39,20 +43,41 @@ class LibroController extends Controller
   {
     try {
       DB::beginTransaction();
-      Log::debug('entro');
-      $areaRepoData = new AreaRepoData();
-      $areaObj = $areaRepoData->getById($request->areaId);
 
+      // AREA
+      $areaObj = null;
+      if ($request->editorialId != '') {
+        $areaRepoData = new AreaRepoData();
+        $areaObj = $areaRepoData->getById($request->areaId);
+      } else {
+        $areaObj = Area::firstOrCreate(['area' => Utilerias::normalizarTexto($request->areaNombre)]);
+        if (!$areaObj->wasRecentlyCreated) {
+          throw new ValidadorException('El área ya existe, no se completo el alta del libro.');
+        }
+      }
+
+      // EDITORIAL
       $editorialObj = null;
       if ($request->editorialId != '') {
         $editorialRepoData = new EditorialRepoData();
         $editorialObj = $editorialRepoData->getById($request->editorialId);
+      } elseif (!empty($request->editorialNombre)) {
+        $editorialObj = Editorial::firstOrCreate(['editorial' => Utilerias::normalizarTexto($request->editorialNombre)]);
+        if (!$editorialObj->wasRecentlyCreated) {
+          throw new ValidadorException('La editorial ya existe, no se completo el alta del libro.');
+        }
       }
 
+      // AUTOR
       $autorObj = null;
       if ($request->autorId != '') {
         $autorRepoData = new AutorRepoData();
         $autorObj = $autorRepoData->getById($request->autorId);
+      } elseif (!empty($request->autorNombre)) {
+        $autorObj = Autor::firstOrCreate(['autor' => Utilerias::normalizarTexto($request->autorNombre)]);
+        if (!$autorObj->wasRecentlyCreated) {
+          throw new ValidadorException('El autor ya existe, no se completo el alta del libro.');
+        }
       }
 
       $areaCarpeta = strtoupper(preg_replace('/[^a-zA-Z0-9]+/', '_', trim($areaObj->area)));
@@ -70,7 +95,7 @@ class LibroController extends Controller
       // Crear el libro
       Libro::create([
         'titulo' => $request->titulo,
-        'area_id' => $request->areaId,
+        'area_id' => $areaObj->id,
         'area' => $areaObj->area,
         'registro_autor_id' => auth()->id() ?? null,
         'archivo_ruta' => $rutaArchivo,
@@ -81,9 +106,9 @@ class LibroController extends Controller
         'registro_fecha' => now(), // Laravel lo almacena automáticamente
         // OPCIONALES
         'cod_barras' => !empty($request->codigoBarras) ? $request->codigoBarras : null,
-        'autor_id' => !empty($request->autorId) ? $request->autorId : null,
+        'autor_id' => !empty($autorObj->id) ? $autorObj->id : null,
         'autor' => !empty($autorObj->autor) ? $autorObj->autor : null,
-        'editorial_id' => !empty($request->editorialId) ? $request->editorialId : null,
+        'editorial_id' => !empty($editorialObj->id) ? $editorialObj->id : null,
         'editorial' => !empty($editorialObj->editorial) ? $editorialObj->editorial : null,
         'descripcion' => !empty($request->descripcion) ? $request->descripcion : null,
         'anio' => !empty($request->anio) ? $request->anio : null,
@@ -93,22 +118,15 @@ class LibroController extends Controller
       ]);
       DB::commit();
       return redirect()->route('libro.alta')->with('success', 'Libro guardado correctamente.');
+    } catch (ValidadorException $th) {
+      DB::rollBack();
+      Log::warning($th->getMessage());
+      return redirect()->route('libro.alta')->with('error', $th->getMessage());
     } catch (\Throwable $th) {
       DB::rollBack();
-      Log::error('Ocurrió un erro al agregar libro');
+      Log::error('Ocurrió un error al agregar libro');
       Log::error($th->getMessage());
-      // Redirecciona de nuevo con mensaje de error
-      // return redirect()
-      //     ->back()
-      //     ->with('error', 'Ocurrió un error al guardar el libro. Por favor intenta más tarde.');
-      Log::error('ante del redirect de error');
-      return redirect()->route('libro.alta')->with('error', 'Ocurrió un error al guardar el libro. Por favor intenta más tarde.');
-      // Inertia::render('LibroAlta', [
-      //   'error' => 'Ocurrió un error al guardar el libro. Por favor intenta más tarde.',
-      //   'autores' => [],
-      //   'editoriales' => [],
-      //   'areas' => [],
-      // ]);
+      return redirect()->route('libro.alta')->with('error', $th->getMessage());
     }
   }
 

@@ -52,7 +52,8 @@
           <h3 class="text-2xl font-semibold text-white/90 mb-6 border-b pb-2">{{ area.area || '--' }}</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             <div @click="solicitarLibro(libro.id, libro.archivo_nombre)" v-for="libro in area.libros" :key="libro.id"
-              class="bg-white border rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col cursor-pointer">
+              class="rounded-xl overflow-hidden cursor-pointer p-4 flex flex-col bg-white/90 backdrop-blur-md transition duration-300 transform hover:scale-105 hover:ring-2 hover:ring-blue-300 hover:bg-white">
+
               <!-- Vista previa del PDF -->
               <div class="text-left truncate">{{ `${libro.titulo || '--'}` }}</div>
               <div class="text-left truncate text-gray-500 text-md">{{ `${libro.autor || 'Sin autor'}` }}</div>

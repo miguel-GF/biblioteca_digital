@@ -13,6 +13,9 @@ const editorialId = ref('')
 const areaId = ref('')
 const archivoPDF = ref(null)
 const inputFileRef = ref(null)
+const areaNombre = ref('')
+const autorNombre = ref('')
+const editorialNombre = ref('')
 
 // Flag para activar validaciones
 const wasSubmitted = ref(false)
@@ -64,6 +67,11 @@ const errors = computed(() => {
   return e
 })
 
+function buscarIdPorNombre(lista, nombre, campo) {
+  const item = lista.find(i => i[campo].toLowerCase().trim() === nombre.toLowerCase().trim())
+  return item ? item.id : null
+}
+
 const tituloError = computed(() => {
   if (!wasSubmitted.value) return ''
   if (!titulo.value) return 'El título es obligatorio.'
@@ -73,7 +81,12 @@ const tituloError = computed(() => {
 
 const areaError = computed(() => {
   if (!wasSubmitted.value) return ''
-  if (!areaId.value) return 'Selecciona un área.'
+  const tieneAreaId = !!areaId.value;
+  const tieneAreaNombre = areaNombre.value.trim().length > 0;
+
+  if (!tieneAreaId && !tieneAreaNombre) {
+    return 'Selecciona o escribe un área.';
+  }
   return ''
 })
 
@@ -136,13 +149,19 @@ function guardarLibro() {
 
   const formData = new FormData()
   formData.append('titulo', titulo.value)
-  formData.append('areaId', areaId.value)
+  const areaIdFinal = buscarIdPorNombre(props.areas, areaNombre.value, 'area')
+  formData.append('areaId', areaIdFinal ?? '')
+  formData.append('areaNombre', areaNombre.value)
   formData.append('archivoPDF', archivoPDF.value)
   formData.append('codigoBarras', codigoBarras.value ?? '')
   formData.append('anio', anio.value ?? '')
   formData.append('descripcion', descripcion.value ?? '')
-  formData.append('autorId', autorId.value ?? '')
-  formData.append('editorialId', editorialId.value ?? '')
+  const autorIdFinal = buscarIdPorNombre(props.autores, autorNombre.value, 'autor')
+  formData.append('autorId', autorIdFinal ?? '')
+  formData.append('autorNombre', autorNombre.value)
+  const editorialIdFinal = buscarIdPorNombre(props.editoriales, editorialNombre.value, 'editorial')
+  formData.append('editorialId', editorialIdFinal ?? '')
+  formData.append('editorialNombre', editorialNombre.value)
 
   router.post(route('libro.guardar'), formData, {
     onSuccess: () => {
@@ -203,12 +222,23 @@ function guardarLibro() {
           <!-- AREAS -->
           <div>
             <label class="block text-sm font-medium text-gray-700">Área *</label>
-            <select v-model="areaId"
+            <!-- <select v-model="areaId"
               class="mt-1 block w-full border rounded-md shadow-sm"
               :class="{ 'border-red-500': wasSubmitted && areaError }">
               <option value="" disabled>Selecciona un área</option>
               <option v-for="area in areas" :key="area.id" :value="area.id">{{ area.area }}</option>
             </select>
+            <p v-if="wasSubmitted && areaError" class="text-sm text-red-600 mt-1">{{ areaError }}</p> -->
+            <input
+              v-model="areaNombre"
+              list="area-list"
+              class="mt-1 block w-full border rounded-md shadow-sm"
+              :class="{ 'border-red-500': wasSubmitted && areaError }"
+              placeholder="Escribe o selecciona un área"
+            />
+            <datalist id="area-list">
+              <option v-for="area in areas" :key="area.id" :value="area.area" />
+            </datalist>
             <p v-if="wasSubmitted && areaError" class="text-sm text-red-600 mt-1">{{ areaError }}</p>
           </div>
 
@@ -252,26 +282,31 @@ function guardarLibro() {
           <!-- AUTORES -->
           <div>
             <label class="block text-sm font-medium text-gray-700">Autor</label>
-            <select v-model="autorId"
+            <input
+              v-model="autorNombre"
+              list="autor-list"
               class="mt-1 block w-full border rounded-md shadow-sm"
-            >
-            <!-- :class="{ 'border-red-500': wasSubmitted && errors.autorId }" -->
-              <option value="" disabled>Selecciona un autor</option>
-              <option v-for="autor in autores" :key="autor.id" :value="autor.id">{{ autor.autor }}</option>
-            </select>
+              placeholder="Escribe o selecciona un autor"
+            />
+            <datalist id="autor-list">
+              <option v-for="autor in autores" :key="autor.id" :value="autor.autor" />
+            </datalist>
             <!-- <p v-if="wasSubmitted && errors.autorId" class="text-sm text-red-600 mt-1">{{ errors.autorId }}</p> -->
           </div>
 
           <!-- EDITORIALES -->
           <div>
             <label class="block text-sm font-medium text-gray-700">Editorial</label>
-            <select v-model="editorialId"
+            <input
+              v-model="editorialNombre"
+              list="editorial-list"
               class="mt-1 block w-full border rounded-md shadow-sm"
-            >
+              placeholder="Escribe o selecciona una editorial"
+            />
+            <datalist id="editorial-list">
+              <option v-for="editorial in editoriales" :key="editorial.id" :value="editorial.editorial" />
+            </datalist>
             <!-- :class="{ 'border-red-500': wasSubmitted && errors.editorialId }" -->
-              <option value="" disabled>Selecciona una editorial</option>
-              <option v-for="editorial in editoriales" :key="editorial.id" :value="editorial.id">{{ editorial.editorial }}</option>
-            </select>
             <!-- <p v-if="wasSubmitted && errors.editorialId" class="text-sm text-red-600 mt-1">{{ errors.editorialId }}</p> -->
           </div>
 

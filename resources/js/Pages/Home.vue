@@ -24,7 +24,7 @@
           <h3 class="text-2xl text-white/90 font-semibold mb-6 text-neutral">Áreas destacadas</h3>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div v-for="area in areas" :key="area.id" @click="buscarPorArea(area.id)"
-              class="rounded-xl overflow-hidden shadow hover:shadow-xl cursor-pointer transition duration-200 text-center p-4 flex flex-col items-center"
+              class="rounded-xl overflow-hidden cursor-pointer text-center p-4 flex flex-col items-center backdrop-blur-md transition duration-300 transform hover:scale-105 hover:ring-2 hover:ring-blue-300"
               style="background-color: #F7F7F7;">
               <img :src="obtenerNombreImagenArea(area.area)" alt="Imagen del área"
                 class="h-24 w-24 object-contain mb-4" />

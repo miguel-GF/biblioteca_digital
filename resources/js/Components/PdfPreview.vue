@@ -1,9 +1,22 @@
 <template>
-  <div class="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl h-72 bg-gray-100 rounded-md flex items-center justify-center mx-auto">
-    <canvas v-if="previewSrc || props.src" ref="canvas" class="rounded-md max-w-full max-h-full object-contain"></canvas>
-    <span v-else class="text-sm text-gray-500">Cargando vista previa...</span>
+  <div
+    class="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl h-72 bg-gray-100 rounded-md flex items-center justify-center mx-auto relative">
+
+    <!-- SKELETON overlay mientras carga -->
+    <div v-if="!previewSrc"
+      class="absolute inset-0 p-4 flex flex-col justify-center gap-2 bg-gray-100 animate-pulse z-10">
+      <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+      <div class="h-4 bg-gray-300 rounded w-full"></div>
+      <div class="h-4 bg-gray-300 rounded w-5/6"></div>
+      <div class="h-4 bg-gray-300 rounded w-4/6"></div>
+    </div>
+
+    <!-- CANVAS (siempre presente, solo oculto mientras carga) -->
+    <canvas ref="canvas" v-show="previewSrc" class="rounded-md max-w-full max-h-full object-contain z-0"></canvas>
+
   </div>
 </template>
+
 
 <script setup>
 import { ref, watch, nextTick } from 'vue'
