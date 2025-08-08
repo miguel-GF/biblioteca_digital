@@ -174,6 +174,9 @@ function guardarLibro() {
       editorialId.value = ''
       areaId.value = ''
       archivoPDF.value = null
+      areaNombre.value = ''
+      editorialNombre.value = ''
+      autorNombre.value = ''
       wasSubmitted.value = false
       if (inputFileRef.value) {
         inputFileRef.value.value = ''

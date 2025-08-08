@@ -46,7 +46,7 @@ class LibroController extends Controller
 
       // AREA
       $areaObj = null;
-      if ($request->editorialId != '') {
+      if ($request->areaId != '') {
         $areaRepoData = new AreaRepoData();
         $areaObj = $areaRepoData->getById($request->areaId);
       } else {
