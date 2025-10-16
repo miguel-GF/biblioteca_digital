@@ -52,7 +52,7 @@ const errors = computed(() => {
   const e = {}
 
   if (!titulo.value) e.titulo = 'El título es obligatorio.'
-  else if (titulo.value.length > 50) e.titulo = 'Máximo 50 caracteres.'
+  // else if (titulo.value.length > 50) e.titulo = 'Máximo 50 caracteres.'
 
   if (!codigoBarras.value) e.codigoBarras = 'El código de barras es obligatorio.'
   else if (codigoBarras.value.length > 15) e.codigoBarras = 'Máximo 15 caracteres.'
@@ -75,7 +75,7 @@ function buscarIdPorNombre(lista, nombre, campo) {
 const tituloError = computed(() => {
   if (!wasSubmitted.value) return ''
   if (!titulo.value) return 'El título es obligatorio.'
-  if (titulo.value.length > 50) return 'Máximo 50 caracteres.'
+  // if (titulo.value.length > 50) return 'Máximo 50 caracteres.'
   return ''
 })
 

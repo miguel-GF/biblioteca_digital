@@ -14,7 +14,7 @@ class LibroGuardarRequest extends FormRequest
   public function rules()
   {
     return [
-      'titulo' => 'required|string|max:50',
+      // 'titulo' => 'required|string|max:50',s
       // 'areaId' => 'required|exists:areas,id',
       'archivoPDF' => 'required|file|mimes:pdf|max:40000',
       'codigoBarras' => 'nullable|string|max:255',
@@ -31,7 +31,7 @@ class LibroGuardarRequest extends FormRequest
   {
     return [
       'titulo.required' => 'El título es obligatorio.',
-      'titulo.max' => 'El título no puede exceder los 50 caracteres.',
+      // 'titulo.max' => 'El título no puede exceder los 50 caracteres.',
       'anio.required' => 'El año es obligatorio.',
       'anio.digits' => 'El año debe tener 4 dígitos.',
       'autorId.required' => 'Debes seleccionar un autor.',

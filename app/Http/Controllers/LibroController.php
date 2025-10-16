@@ -44,6 +44,118 @@ class LibroController extends Controller
     try {
       DB::beginTransaction();
 
+      // Obtención/Creación de Entidades (Área, Editorial, Autor)
+      $areaObj      = $this->findOrCreateEntity(
+        $request->areaId,
+        $request->areaNombre,
+        'Area',
+        'area',
+        'AreaRepoData'
+      );
+
+      $editorialObj = $this->findOrCreateEntity(
+        $request->editorialId,
+        $request->editorialNombre,
+        'Editorial',
+        'editorial',
+        'EditorialRepoData'
+      );
+
+      $autorObj     = $this->findOrCreateEntity(
+        $request->autorId,
+        $request->autorNombre,
+        'Autor',
+        'autor',
+        'AutorRepoData'
+      );
+
+      // --- Lógica del Archivo ---
+      $areaCarpeta = strtoupper(preg_replace('/[^a-zA-Z0-9]+/', '_', trim($areaObj->area)));
+
+      $archivo = $request->file('archivoPDF');
+      $archivoNombreOriginal = $archivo->getClientOriginalName();
+      Log::debug("archivoNombreOriginal -> $archivoNombreOriginal");
+      $extension = strtolower($archivo->getClientOriginalExtension());
+      $nombreTituloTratado = strtoupper(preg_replace('/[^a-zA-Z0-9]+/', '_', trim($request->titulo)));
+      $archivoNombre = $nombreTituloTratado . "." . $extension;
+      $rutaArchivo = $archivo->storeAs($areaCarpeta, $archivoNombre, 'public');
+
+      // --- Creación del Libro ---
+      Libro::create([
+        'titulo'                    => $request->titulo,
+        'area_id'                   => $areaObj->id,
+        'area'                      => $areaObj->area,
+        'registro_autor_id'         => auth()->id() ?? null,
+        'archivo_ruta'              => $rutaArchivo,
+        'archivo_tamanio'           => $archivo->getSize(),
+        'archivo_nombre'            => $archivoNombre,
+        'archivo_nombre_original'   => $archivoNombreOriginal,
+        'archivo_mime_type'         => $archivo->getClientMimeType(),
+        'registro_fecha'            => now(),
+
+        // OPCIONALES
+        'cod_barras'    => $request->codigoBarras ?: null,
+        'autor_id'      => $autorObj->id ?? null,
+        'autor'         => $autorObj->autor ?? null,
+        'editorial_id'  => $editorialObj->id ?? null,
+        'editorial'     => $editorialObj->editorial ?? null,
+        'descripcion'   => $request->descripcion ?: null,
+        'anio'          => $request->anio ?: null,
+        'status'        => $request->status ?? 'activo',
+        'clave'         => null,
+        'isbn'          => null,
+      ]);
+
+      DB::commit();
+      return redirect()->route('libro.alta')->with('success', 'Libro guardado correctamente.');
+    } catch (ValidadorException $th) {
+      // Mantenemos esta, por si la usas en otro lado
+      DB::rollBack();
+      Log::warning($th->getMessage());
+      return redirect()->route('libro.alta')->with('error', $th->getMessage());
+    } catch (\Throwable $th) {
+      DB::rollBack();
+      Log::error('Ocurrió un error al agregar libro');
+      Log::error($th->getMessage());
+      return redirect()->route('libro.alta')->with('error', 'Error al guardar el libro: ' . $th->getMessage());
+    }
+  }
+
+  /**
+   * Función auxiliar para refactorizar la lógica repetitiva de obtener/crear entidades.
+   * * NOTA: Esta función DEBE agregarse como un método privado en tu controlador.
+   * Asume que las clases de Modelos (Area, Editorial, Autor) están importadas.
+   */
+  private function findOrCreateEntity($id, $name, string $modelName, string $columnName, string $repoName)
+  {
+    $obj = null;
+    $modelClass = "\\App\\Models\\{$modelName}"; // Ajusta el namespace si es necesario
+    $repoClass = "\\App\Repos\\Data\\{$repoName}"; // Ajusta el namespace si es necesario
+
+    if (!empty($id)) {
+      // Opción 1: Obtener por ID (asume que el repo tiene un getById)
+      $repoData = new $repoClass();
+      $obj = $repoData->getById($id);
+    } elseif (!empty($name)) {
+      // Opción 2: Encontrar o Crear por Nombre (normalizando el texto)
+      $normalizedName = Utilerias::normalizarTexto($name);
+      // **IMPORTANTE**: ELIMINAR la validación de wasRecentlyCreated aquí.
+      $obj = $modelClass::firstOrCreate([$columnName => $normalizedName]);
+    }
+
+    // Opcional: Validar que si se proporcionó un ID, el objeto exista.
+    if (!empty($id) && is_null($obj)) {
+      throw new ValidadorException("No se encontró la entidad de {$modelName} con el ID proporcionado.");
+    }
+
+    return $obj;
+  }
+
+  public function guardarDeprecated(LibroGuardarRequest $request)
+  {
+    try {
+      DB::beginTransaction();
+
       // AREA
       $areaObj = null;
       if ($request->areaId != '') {
