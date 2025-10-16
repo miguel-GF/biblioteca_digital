@@ -216,7 +216,7 @@ function guardarLibro() {
           <!-- Título -->
           <div>
             <label class="block text-sm font-medium text-gray-700">Título *</label>
-            <input v-model="titulo" type="text" maxlength="50"
+            <input v-model="titulo" type="text"
               class="mt-1 block w-full border rounded-md shadow-sm"
               :class="{ 'border-red-500': wasSubmitted && tituloError }" />
             <p v-if="wasSubmitted && tituloError" class="text-sm text-red-600 mt-1">{{ tituloError }}</p>
