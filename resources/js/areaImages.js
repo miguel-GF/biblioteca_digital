@@ -5,6 +5,9 @@ const areaImageMap = {
   derecho: 'derecho.png',
   finanzas: 'finanzas.png',
   maestriaenderechoconstitucionalyamparo: 'maestriaenderechoconstitucionalyamparo.png',
+  maestriaenaltadirecciondeempresas: 'maestriaaltaempresas.png',
+  administraciondepequenasymedianasempresas: 'administraciopeqmedempresas.png',
+  gestionfinanciera: 'gestionfinanciera.png',
   // agrega más aquí según tus imágenes disponibles...
 }
 
