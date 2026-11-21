@@ -11,6 +11,7 @@ use Inertia\Inertia;
 
 Route::get('/home', [HomeController::class, 'index']);
 Route::get('/libros', [LibroController::class, 'listarLibrosPorCategoria']);
+Route::get('/libros-sugeridos', [LibroController::class, 'listarSugeridos']);
 Route::get('/validar-matricula', [LibroController::class, 'validarMatricula']);
 Route::get('/descargar-libro/{id}', [LibroController::class, 'descargar']);
 Route::get('/preview-libro/{archivo}', function ($archivo) {
@@ -45,6 +46,8 @@ Route::middleware([
   })->name('dashboard');
   Route::get('/dashboard/libro/alta', [LibroController::class, 'getDatosLibroAlta'])->name('libro.alta');
   Route::post('/dashboard/libro/guardar', [LibroController::class, 'guardar'])->name('libro.guardar');
+  Route::get('/dashboard/libros-sugeridos', [LibroController::class, 'adminSugeridos'])->name('admin.libros.sugeridos');
+  Route::put('/dashboard/sugeridos', [LibroController::class, 'guardarSugeridos'])->name('libro.sugeridos.guardar');
 });
 
 Route::fallback(function () {

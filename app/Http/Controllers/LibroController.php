@@ -104,6 +104,10 @@ class LibroController extends Controller
         'status'        => $request->status ?? 'activo',
         'clave'         => null,
         'isbn'          => null,
+
+        // SUGERIDOS
+        'sugerido'      => $request->boolean('sugerido'),
+        'importancia'   => (int) ($request->input('importancia') ?: 1),
       ]);
 
       DB::commit();
@@ -265,23 +269,9 @@ class LibroController extends Controller
 
     $agrupados = $libros->groupBy('area')->map(function ($librosPorArea, $area) {
       // Mapea cada libro dentro de este grupo para añadir la URL completa
-      $librosConUrl = $librosPorArea->map(function ($libro) {
-        return [
-          'id' => $libro->id,
-          'titulo' => $libro->titulo,
-          'autor' => $libro->autor,
-          'editorial' => $libro->editorial,
-          'anio' => $libro->anio,
-          'descripcion' => $libro->descripcion,
-          'area' => $libro->area, // Asegúrate de incluir todas las propiedades que necesitas
-          // ¡Aquí es donde aplicamos Storage::url()!
-          // 'archivo_url' => Storage::url($libro->archivo_ruta),
-          'archivo_url' => "/preview-libro/{$libro->archivo_ruta}",
-          // Si aún necesitas la ruta original por alguna razón, también la puedes pasar
-          'archivo_ruta' => $libro->archivo_ruta,
-          'archivo_nombre' => $libro->archivo_nombre,
-        ];
-      })->values(); // Usa values() para resetear las claves del array
+      $librosConUrl = $librosPorArea
+        ->map(fn ($libro) => $libro->resumenVista())
+        ->values(); // Usa values() para resetear las claves del array
 
       return [
         'area' => $area,
@@ -298,6 +288,83 @@ class LibroController extends Controller
       'agrupados' => $agrupados,
       'areas' => $areas,
     ]);
+  }
+
+  public function listarSugeridos()
+  {
+    $sugeridos = Libro::sugeridos()
+      ->get()
+      ->map(fn ($libro) => $libro->resumenVista());
+
+    return Inertia::render('LibrosSugeridos', [
+      'sugeridos' => $sugeridos,
+    ]);
+  }
+
+  /**
+   * Pantalla administrativa para marcar libros como sugeridos
+   * y asignarles una importancia.
+   */
+  public function adminSugeridos(Request $request)
+  {
+    $busqueda = $request->input('busqueda');
+
+    $sugeridos = Libro::where('sugerido', true)
+      ->orderByDesc('importancia')
+      ->orderBy('titulo')
+      ->get()
+      ->map(fn ($libro) => $libro->resumenVista());
+
+    $libros = Libro::query()
+      ->when($busqueda, function ($query) use ($busqueda) {
+        $query->where(function ($subQuery) use ($busqueda) {
+          $subQuery->where('titulo', 'like', "%{$busqueda}%")
+            ->orWhere('autor', 'like', "%{$busqueda}%")
+            ->orWhere('editorial', 'like', "%{$busqueda}%");
+        });
+      })
+      ->orderBy('titulo')
+      ->paginate(10)
+      ->withQueryString()
+      ->through(fn ($libro) => $libro->resumenVista());
+
+    return Inertia::render('LibrosSugeridosAdmin', [
+      'sugeridos' => $sugeridos,
+      'libros' => $libros,
+      'busqueda' => $busqueda ?: '',
+    ]);
+  }
+
+  /**
+   * Guarda de una sola vez todos los libros sugeridos:
+   * altas, bajas, orden e importancias.
+   */
+  public function guardarSugeridos(Request $request)
+  {
+    $validated = $request->validate([
+      'sugeridos' => 'present|array',
+      'sugeridos.*.id' => 'required|integer|distinct|exists:libros,id',
+      'sugeridos.*.importancia' => 'required|integer|min:1|max:100',
+    ]);
+
+    DB::transaction(function () use ($validated) {
+      $ids = collect($validated['sugeridos'])->pluck('id')->all();
+
+      // Los que ya no vienen en la lista dejan de ser sugeridos.
+      Libro::where('sugerido', true)
+        ->whereNotIn('id', $ids)
+        ->update(['sugerido' => false]);
+
+      // Altas y actualizaciones de importancia.
+      foreach ($validated['sugeridos'] as $item) {
+        Libro::where('id', $item['id'])->update([
+          'sugerido' => true,
+          'importancia' => (int) $item['importancia'],
+        ]);
+      }
+    });
+
+    return back()->with('success', 'Sugeridos guardados correctamente.');
   }
 
   public function validarMatricula(Request $request)

@@ -24,6 +24,8 @@ class LibroGuardarRequest extends FormRequest
       // 'isbn' => 'nullable|string|max:255',
       'anio' => 'nullable|digits:4',
       'status' => 'nullable|string',
+      'sugerido' => 'nullable|boolean',
+      'importancia' => 'nullable|integer|min:1|max:100',
     ];
   }
 

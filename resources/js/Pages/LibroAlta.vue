@@ -16,6 +16,8 @@ const inputFileRef = ref(null)
 const areaNombre = ref('')
 const autorNombre = ref('')
 const editorialNombre = ref('')
+const sugerido = ref(false)
+const importancia = ref(1)
 
 // Flag para activar validaciones
 const wasSubmitted = ref(false)
@@ -162,6 +164,8 @@ function guardarLibro() {
   const editorialIdFinal = buscarIdPorNombre(props.editoriales, editorialNombre.value, 'editorial')
   formData.append('editorialId', editorialIdFinal ?? '')
   formData.append('editorialNombre', editorialNombre.value)
+  formData.append('sugerido', sugerido.value ? '1' : '0')
+  formData.append('importancia', String(importancia.value ?? 1))
 
   router.post(route('libro.guardar'), formData, {
     onSuccess: () => {
@@ -177,6 +181,8 @@ function guardarLibro() {
       areaNombre.value = ''
       editorialNombre.value = ''
       autorNombre.value = ''
+      sugerido.value = false
+      importancia.value = 1
       wasSubmitted.value = false
       if (inputFileRef.value) {
         inputFileRef.value.value = ''
@@ -279,6 +285,33 @@ function guardarLibro() {
             <label class="block text-sm font-medium text-gray-700">Descripción</label>
             <textarea v-model="descripcion"
               class="mt-1 block w-full border rounded-md shadow-sm"></textarea>
+          </div>
+
+          <!-- LIBRO SUGERIDO -->
+          <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 space-y-4">
+            <div class="flex items-start gap-3">
+              <input id="sugerido" v-model="sugerido" type="checkbox"
+                class="mt-1 h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary" />
+              <div>
+                <label for="sugerido" class="block text-sm font-semibold text-gray-700 cursor-pointer">
+                  Libro sugerido
+                </label>
+                <p class="text-xs text-gray-500">
+                  Si se marca, el libro aparecerá en la sección "Libros sugeridos" del inicio.
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Importancia</label>
+              <select v-model.number="importancia" :disabled="!sugerido"
+                class="mt-1 block w-full border rounded-md shadow-sm disabled:bg-gray-100 disabled:text-gray-400">
+                <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+              </select>
+              <p class="text-xs text-gray-500 mt-1">
+                Del 1 al 10. A mayor número, más arriba se muestra dentro de los sugeridos.
+              </p>
+            </div>
           </div>
 
           <!-- Selects -->

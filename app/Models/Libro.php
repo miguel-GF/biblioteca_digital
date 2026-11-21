@@ -28,6 +28,8 @@ class Libro extends Authenticatable
     'descripcion',
     'anio',
     'status',
+    'sugerido',
+    'importancia',
     'archivo_ruta',
     'archivo_tamanio',
     'archivo_nombre',
@@ -40,5 +42,39 @@ class Libro extends Authenticatable
   // Si quieres que al acceder a 'registro_fecha' se convierta a instancia de Carbon automáticamente
   protected $casts = [
     'registro_fecha' => 'datetime',
+    'sugerido' => 'boolean',
+    'importancia' => 'integer',
   ];
+
+  /**
+   * Libros marcados como sugeridos, ordenados por importancia (mayor primero)
+   * y, en caso de empate, por título.
+   */
+  public function scopeSugeridos($query)
+  {
+    return $query->where('sugerido', true)
+      ->orderByDesc('importancia')
+      ->orderBy('titulo');
+  }
+
+  /**
+   * Datos mínimos que se envían al frontend para pintar un libro.
+   */
+  public function resumenVista(): array
+  {
+    return [
+      'id' => $this->id,
+      'titulo' => $this->titulo,
+      'autor' => $this->autor,
+      'editorial' => $this->editorial,
+      'anio' => $this->anio,
+      'descripcion' => $this->descripcion,
+      'area' => $this->area,
+      'sugerido' => (bool) $this->sugerido,
+      'importancia' => (int) $this->importancia,
+      'archivo_url' => "/preview-libro/{$this->archivo_ruta}",
+      'archivo_ruta' => $this->archivo_ruta,
+      'archivo_nombre' => $this->archivo_nombre,
+    ];
+  }
 }

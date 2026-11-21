@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-// use App\Models\Categoria;
+use App\Models\Libro;
 use App\Repos\Data\AreaRepoData;
 use Inertia\Inertia;
 
@@ -10,13 +10,20 @@ class HomeController extends Controller
 {
     public function index()
     {
-        // $categorias = Categoria::select('id', 'nombre')->where('destacada', true)->get();
         $areaRepo = new AreaRepoData();
         $areas = $areaRepo->get(['destacada' => 'si']);
 
+        $sugeridos = Libro::sugeridos()
+            ->limit(10)
+            ->get()
+            ->map(fn ($libro) => $libro->resumenVista());
+
+        $totalSugeridos = Libro::where('sugerido', true)->count();
+
         return Inertia::render('Home', [
-            // 'categorias' => $categorias
-            'areas' => $areas
+            'areas' => $areas,
+            'sugeridos' => $sugeridos,
+            'totalSugeridos' => $totalSugeridos,
         ]);
     }
 }

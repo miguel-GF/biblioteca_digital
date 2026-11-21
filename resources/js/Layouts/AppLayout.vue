@@ -51,6 +51,9 @@ const logout = () => {
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Mi Cuenta
                                 </NavLink>
+                                <NavLink :href="route('admin.libros.sugeridos')" :active="route().current('admin.libros.sugeridos')">
+                                    Sugeridos
+                                </NavLink>
                             </div>
                         </div>
 
@@ -142,6 +145,10 @@ const logout = () => {
                                             Alta de Libro
                                         </DropdownLink>
 
+                                        <DropdownLink :href="route('admin.libros.sugeridos')">
+                                            Sugeridos
+                                        </DropdownLink>
+
                                         <!-- <DropdownLink :href="route('profile.show')">
                                             Profile
                                         </DropdownLink> -->
@@ -220,6 +227,9 @@ const logout = () => {
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('libro.alta')" :active="route().current('libro.alta')">
                                 Alta de Libro
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('admin.libros.sugeridos')" :active="route().current('admin.libros.sugeridos')">
+                                Sugeridos
                             </ResponsiveNavLink>
                             <!-- <ResponsiveNavLink :href="route('profile.show')" :active="route().current('profile.show')">
                                 Profile
